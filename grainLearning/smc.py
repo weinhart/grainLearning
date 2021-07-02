@@ -164,7 +164,6 @@ class smc:
             self.numSamples = self.getParamsFromHalton(paramRanges, numSamples, numThreads)
             if self.standAlone:
                 print('Leaving GrainLearning; only a parameter table is created.')
-                sys.exit()
 
     def initialize(self, maxNumComponents, priorWeight=0.0, covType='full', proposalFile=''):
         """
@@ -430,7 +429,14 @@ class smc:
                 else:
                     break
             # solve sigma for the effective sample size equals self.ess
-            sigma = optimize.brentq(self.subRun, self.sigmaMin, self.sigmaMax, xtol=essTol)
+            if self.subRun(self.sigmaMin)<0:
+                print("Warning: ess(sigmaMin)>essMin; decrease sigmaMin to get better convergence")
+                sigma = self.sigmaMin
+            elif self.subRun(self.sigmaMax)>0:
+                raise Warning("ess(sigmaMax)<essMin; increase sigmaMax to get better convergence")
+                sigma = self.sigmaMax
+            else:
+                sigma = optimize.brentq(self.subRun, self.sigmaMin, self.sigmaMax, xtol=essTol)
             self.subRun(sigma)
         else:
             # find the normalized covariance coefficient that maximizes the effective sample size
@@ -697,7 +703,9 @@ class smc:
         if not self.obsCtrl:
             keysAndData = np.genfromtxt(obsFileName)
             # if only one observation data vector exist, reshape it with [numSteps,1]
-            if len(keysAndData.shape) == 1:
+            if len(keysAndData.shape) == 0:
+                keysAndData = keysAndData.reshape([1, 1])
+            elif len(keysAndData.shape) == 1:
                 keysAndData = keysAndData.reshape([keysAndData.shape[0], 1])
             return keysAndData, None, keysAndData.shape[1], keysAndData.shape[0]
         else:

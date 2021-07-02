@@ -4,7 +4,7 @@ import itertools
 
 from plotResults import *
 from simulate import *
-from smc import *
+from smc import smc
 
 def calibrate(parameters, measurements, n_iterations=3, n_samples=0, n_gmm=2, ess_min=0.2, sigma_max=1,
               mercury_build='.', output_dir='', test=False, verbose=False, nodes=[], cores=0, analysis=False):
@@ -108,7 +108,8 @@ def calibrate(parameters, measurements, n_iterations=3, n_samples=0, n_gmm=2, es
             means, covs = smcTest.run()
             # resample parameters
             gmm, maxNumComponents = smcTest.resampleParams(caliStep=-1)
-            print("means %r \ncovs %r \ngmm means %r, \nweights %r, \ncovs %r" % (means,covs,gmm.means_,gmm.weights_, gmm.covariances_))
+            #print("means %r \ncovs %r \ngmm means %r, \nweights %r, \ncovs %r" % (means,covs,gmm.means_,gmm.weights_, gmm.covariances_))
+            print("gmm means %r, \ngmm weights %r, \ngmm covs %r\n" % (gmm.means_.flatten(), gmm.weights_.flatten(), gmm.covariances_.flatten()))
 
             if os.path.isfile(smc_table_next):
                 print("%s already exists" % smc_table_next)

@@ -23,4 +23,4 @@ output_dir = 'identity1_0'
 # call the calibration
 from calibrate import *
 calibrate(parameters, measurements, n_iterations, n_samples, n_gmm, ess_min, sigma_max, mercury_build, output_dir,
-          analysis=False)
+          analysis=True)
