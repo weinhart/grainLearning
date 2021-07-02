@@ -141,6 +141,7 @@ def resampledParamsTable(keys, smcSamples, proposal, num=100, threads=4, maxNumC
 
     # normalize parameter samples
     sampleMaxs = np.zeros(smcSamples.shape[1])
+    # \todo why is the scaling necessary
     for i in range(sampleMaxs.shape[0]):
         sampleMaxs[i] = max(smcNewSamples[:, i])
         smcNewSamples[:, i] /= sampleMaxs[i]
@@ -153,7 +154,10 @@ def resampledParamsTable(keys, smcSamples, proposal, num=100, threads=4, maxNumC
     smcNewSamples, _ = gmm.sample(num)
 
     # scale resampled parameters back to their right units
-    for i in range(sampleMaxs.shape[0]): smcNewSamples[:, i] *= sampleMaxs[i]
+    for i in range(sampleMaxs.shape[0]):
+        smcNewSamples[:, i] *= sampleMaxs[i]
+        gmm.means_[:, i] *= sampleMaxs[i]
+        gmm.covariances_[:, i] *= sampleMaxs[i]**2
 
     # write parameters in the format for Yade batch mode
     writeToTable(tableName, smcNewSamples, dim, num, threads, keys)
